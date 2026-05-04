@@ -859,6 +859,112 @@
     #toast.show { opacity: 1; transform: translateX(0); }
 
     /* =====================================================
+       VAULT BREAKER STYLES
+    ===================================================== */
+    .vault-container { position: relative; padding: 20px; }
+    .vault-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      width: 260px;
+      position: relative;
+    }
+    .vault-btn {
+      aspect-ratio: 1;
+      border: 3px solid rgba(255,255,255,0.1);
+      background: rgba(0,0,0,0.4);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .vault-btn.lit { transform: scale(0.96); filter: brightness(1.5); }
+    .btn-blue { border-color: var(--neon-blue); }
+    .btn-blue.lit { background: var(--neon-blue); box-shadow: 0 0 40px var(--neon-blue); }
+    .btn-purple { border-color: var(--neon-purple); }
+    .btn-purple.lit { background: var(--neon-purple); box-shadow: 0 0 40px var(--neon-purple); }
+    .btn-green { border-color: var(--neon-green); }
+    .btn-green.lit { background: var(--neon-green); box-shadow: 0 0 40px var(--neon-green); }
+    .btn-yellow { border-color: var(--neon-yellow); }
+    .btn-yellow.lit { background: var(--neon-yellow); box-shadow: 0 0 40px var(--neon-yellow); }
+    .vault-center {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 60px; height: 60px;
+      background: var(--black);
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.2);
+      display: flex; align-items: center; justify-content: center;
+      pointer-events: none;
+      z-index: 5;
+    }
+    .vault-center img { width: 70%; height: 70%; object-fit: contain; }
+
+    /* =====================================================
+       QUANTUM MINER STYLES
+    ===================================================== */
+    .miner-container { display: flex; flex-direction: column; align-items: center; }
+    .miner-track {
+      width: 300px;
+      height: 24px;
+      background: rgba(0, 240, 255, 0.05);
+      border: 1px solid rgba(0, 240, 255, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+    .miner-target {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      background: rgba(0, 255, 136, 0.3);
+      border-left: 2px solid var(--neon-green);
+      border-right: 2px solid var(--neon-green);
+      box-shadow: inset 0 0 15px rgba(0, 255, 136, 0.2);
+    }
+    .miner-cursor {
+      position: absolute;
+      top: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--neon-blue);
+      box-shadow: 0 0 10px var(--neon-blue);
+      z-index: 2;
+    }
+
+    /* =====================================================
+       NEURAL LINK STYLES
+    ===================================================== */
+    .link-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      width: 280px;
+      margin: 0 auto;
+    }
+    .link-node {
+      aspect-ratio: 1;
+      background: rgba(10, 10, 26, 0.8);
+      border: 2px solid rgba(191, 0, 255, 0.3);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+    .link-node.active {
+      border-color: var(--neon-green);
+      background: rgba(0, 255, 136, 0.1);
+      box-shadow: 0 0 15px rgba(0, 255, 136, 0.2);
+    }
+    .link-node img {
+      width: 70%; height: 70%;
+      opacity: 0; transform: scale(0.5);
+      transition: all 0.3s ease;
+      image-rendering: pixelated;
+    }
+    .link-node.active img { opacity: 1; transform: scale(1); filter: drop-shadow(0 0 5px var(--neon-green)); }
+
+    /* =====================================================
        RESPONSIVE
     ===================================================== */
     @media (max-width: 768px) {
@@ -946,7 +1052,10 @@
 
   <nav id="mainNav">
     <a href="#home">Home</a>
-    <a href="#game">Game</a>
+    <a href="#game">Coin Catch</a>
+    <a href="#game2">Vault Hack</a>
+    <a href="#game3">Quantum Mine</a>
+    <a href="#game4">Neural Link</a>
     <a href="#airdrop">Airdrop</a>
     <a href="#wallet">Wallet</a>
     <a href="#social">Social Tasks</a>
@@ -965,7 +1074,10 @@
 <!-- Mobile drawer -->
 <div class="nav-drawer" id="navDrawer">
   <a href="#home" onclick="closeDrawer()">🏠 Home</a>
-  <a href="#game" onclick="closeDrawer()">🎮 Game</a>
+  <a href="#game" onclick="closeDrawer()">🎮 Coin Catch</a>
+  <a href="#game2" onclick="closeDrawer()">🔐 Vault Hack</a>
+  <a href="#game3" onclick="closeDrawer()">⛏️ Quantum Mine</a>
+  <a href="#game4" onclick="closeDrawer()">🧬 Neural Link</a>
   <a href="#airdrop" onclick="closeDrawer()">🎁 Airdrop</a>
   <a href="#wallet" onclick="closeDrawer()">👛 Wallet</a>
   <a href="#social" onclick="closeDrawer()">📢 Social Tasks</a>
@@ -1070,6 +1182,98 @@
     <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
       <button class="btn btn-green btn-sm" id="startBtn" onclick="startGame()"><span>▶ START GAME</span></button>
       <button class="btn btn-sm" id="resetBtn" onclick="restartGame()" style="display:none;"><span>↺ RESTART</span></button>
+    </div>
+  </div>
+</section>
+
+<!-- ===================================================
+     VAULT BREAKER (NEW GAME)
+==================================================== -->
+<section id="game2">
+  <div class="neon-divider"></div>
+  <span class="section-label reveal">// LOGIC CHALLENGE</span>
+  <h2 class="section-title reveal">🔐 Vault Breaker — Memory Protocol</h2>
+  <p class="reveal" style="font-size:12px;color:rgba(200,216,232,0.6);margin-bottom:32px;">
+    Hack the system by repeating the flashing sequence. Each level cleared = +10 XOLVIRA coins. Don't fail the handshake!
+  </p>
+
+  <div class="game-wrapper">
+    <div class="game-hud">
+      <div class="hud-box">HACK LEVEL<span class="hud-val" id="vaultLevel">1</span></div>
+      <div class="hud-box">HIGH SCORE<span class="hud-val" id="vaultHighScore">0</span></div>
+    </div>
+
+    <div class="vault-container">
+      <div id="vaultGrid" class="vault-grid">
+        <div class="vault-btn btn-blue" id="vbtn-0" onclick="handleVaultClick(0)"></div>
+        <div class="vault-btn btn-purple" id="vbtn-1" onclick="handleVaultClick(1)"></div>
+        <div class="vault-btn btn-green" id="vbtn-2" onclick="handleVaultClick(2)"></div>
+        <div class="vault-btn btn-yellow" id="vbtn-3" onclick="handleVaultClick(3)"></div>
+        <div class="vault-center"><img src="image/logo.png" alt="X"></div>
+      </div>
+    </div>
+
+    <div id="vaultMsg" style="font-family:var(--pixel);font-size:10px;color:var(--neon-blue);margin-top:20px;">READY?</div>
+    <button class="btn btn-purple btn-sm" id="startVaultBtn" onclick="startVaultGame()" style="margin-top:20px;"><span>▶ START HACK</span></button>
+  </div>
+</section>
+
+<!-- ===================================================
+     QUANTUM MINER (NEW GAME)
+==================================================== -->
+<section id="game3">
+  <div class="neon-divider"></div>
+  <span class="section-label reveal">// PRECISION PROTOCOL</span>
+  <h2 class="section-title reveal">⛏️ Quantum Miner — Synchronization</h2>
+  <p class="reveal" style="font-size:12px;color:rgba(200,216,232,0.6);margin-bottom:32px;">
+    Hit the 'MINE' button when the cursor is over the green quantum zone. Chain hits for massive multipliers!
+  </p>
+
+  <div class="game-wrapper">
+    <div class="game-hud">
+      <div class="hud-box">MULTIPLIER<span class="hud-val" id="minerMult">1x</span></div>
+      <div class="hud-box">MINED TOTAL<span class="hud-val" id="minerSession">0</span></div>
+    </div>
+
+    <div class="miner-container">
+        <div class="miner-track">
+            <div id="minerTarget" class="miner-target"></div>
+            <div id="minerCursor" class="miner-cursor"></div>
+        </div>
+        
+        <div style="margin-top: 40px; position: relative; cursor: pointer; transition: transform 0.1s;" onclick="mineQuantum()" id="minerBtnContainer">
+            <img src="image/logo.png" id="minerBtnImg" style="width: 80px; height: 80px; image-rendering: pixelated; filter: drop-shadow(0 0 10px var(--neon-purple));">
+            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; font-family: var(--pixel); font-size: 10px; color: #fff; text-shadow: 0 0 5px #000;">MINE</div>
+        </div>
+    </div>
+
+    <div id="minerMsg" style="font-family:var(--pixel);font-size:10px;color:var(--neon-green);margin-top:20px;">READY TO SYNC?</div>
+    <button class="btn btn-green btn-sm" id="startMinerBtn" onclick="startMinerGame()" style="margin-top:20px;"><span>▶ INITIALIZE MINER</span></button>
+  </div>
+</section>
+
+<!-- ===================================================
+     NEURAL LINK (NEW MIND GAME)
+==================================================== -->
+<section id="game4">
+  <div class="neon-divider"></div>
+  <span class="section-label reveal">// LOGIC OVERLOAD</span>
+  <h2 class="section-title reveal">🧬 Neural Link — Grid Bypass</h2>
+  <p class="reveal" style="font-size:12px;color:rgba(200,216,232,0.6);margin-bottom:32px;">
+    Establish a connection by activating all nodes. Clicking a node toggles itself and its neighbors. Clear the grid for +25 Coins!
+  </p>
+
+  <div class="game-wrapper">
+    <div class="game-hud">
+        <div class="hud-box">MOVES<span class="hud-val" id="linkMoves">0</span></div>
+        <div class="hud-box">TARGET<span class="hud-val" style="color:var(--neon-green);">ALL GREEN</span></div>
+    </div>
+
+    <div id="linkGrid" class="link-grid"></div>
+
+    <div id="linkMsg" style="font-family:var(--pixel);font-size:10px;color:var(--neon-purple);margin-top:20px;">LINK STATUS: OFFLINE</div>
+    <div style="display:flex;gap:12px;margin-top:20px;">
+        <button class="btn btn-purple btn-sm" id="startLinkBtn" onclick="startLinkGame()"><span>▶ INIT LINK</span></button>
     </div>
   </div>
 </section>
@@ -1932,6 +2136,235 @@ window.addEventListener('load', () => {
 
   }, 2200);  // Let the loading animation play
 });
+
+/* =====================================================
+   VAULT BREAKER LOGIC
+===================================================== */
+let vaultSequence = [], userSequence = [], vLvl = 1, isPlayingVault = false, isShowingSeq = false;
+let vaultHighScore = parseInt(localStorage.getItem('xolvira_vault_high') || '0');
+
+function startVaultGame() {
+  initAudio();
+  vaultSequence = []; userSequence = []; vLvl = 1; isPlayingVault = true;
+  document.getElementById('vaultHighScore').textContent = vaultHighScore;
+  document.getElementById('startVaultBtn').style.display = 'none';
+  document.getElementById('vaultMsg').style.color = 'var(--neon-blue)';
+  nextVaultLevel();
+}
+
+function nextVaultLevel() {
+  userSequence = []; isShowingSeq = true;
+  document.getElementById('vaultLevel').textContent = vLvl;
+  document.getElementById('vaultMsg').textContent = "SYSTEM ENCRYPTING...";
+  vaultSequence.push(Math.floor(Math.random() * 4));
+  
+  let i = 0;
+  const interval = setInterval(() => {
+    lightUpVault(vaultSequence[i]);
+    i++;
+    if (i >= vaultSequence.length) {
+      clearInterval(interval);
+      setTimeout(() => {
+        isShowingSeq = false;
+        document.getElementById('vaultMsg').textContent = "REPEAT SEQUENCE!";
+      }, 600);
+    }
+  }, 800);
+}
+
+function lightUpVault(idx) {
+  const btn = document.getElementById('vbtn-' + idx);
+  if(!btn) return;
+  btn.classList.add('lit');
+  try {
+    const freqs = [261.6, 329.6, 392.0, 523.2]; // C4, E4, G4, C5
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.frequency.value = freqs[idx];
+    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.4);
+  } catch(e) {}
+  setTimeout(() => btn.classList.remove('lit'), 400);
+}
+
+function handleVaultClick(idx) {
+  if (!isPlayingVault || isShowingSeq) return;
+  lightUpVault(idx);
+  userSequence.push(idx);
+  
+  if (userSequence[userSequence.length - 1] !== vaultSequence[userSequence.length - 1]) {
+    isPlayingVault = false;
+    document.getElementById('vaultMsg').textContent = "HACK FAILED!";
+    document.getElementById('vaultMsg').style.color = "#ff4444";
+    document.getElementById('startVaultBtn').style.display = 'inline-block';
+    document.getElementById('startVaultBtn').querySelector('span').textContent = 'RETRY HACK';
+    showToast("Sequence Error: Connection Lost", "#ff4444");
+    return;
+  }
+  
+  if (userSequence.length === vaultSequence.length) {
+    addCoins(10);
+    vLvl++;
+    if (vLvl - 1 > vaultHighScore) {
+      vaultHighScore = vLvl - 1;
+      localStorage.setItem('xolvira_vault_high', vaultHighScore);
+      document.getElementById('vaultHighScore').textContent = vaultHighScore;
+    }
+    showToast("+10 Coins! Protocol Accepted", "#00ff88");
+    setTimeout(nextVaultLevel, 1000);
+  }
+}
+
+window.addEventListener('load', () => {
+  document.getElementById('vaultHighScore').textContent = vaultHighScore;
+});
+
+/* =====================================================
+   QUANTUM MINER LOGIC
+===================================================== */
+let isMinerActive = false, minerPos = 0, minerDir = 1, minerSpeed = 2, minerTargetPos = 40, minerTargetWidth = 15;
+let qMinerMult = 1, minerScore = 0, minerRaf = null;
+
+function startMinerGame() {
+  initAudio();
+  isMinerActive = true;
+  minerScore = 0; qMinerMult = 1; minerSpeed = 2;
+  document.getElementById('startMinerBtn').style.display = 'none';
+  document.getElementById('minerSession').textContent = '0';
+  document.getElementById('minerMult').textContent = '1x';
+  randomizeMinerTarget();
+  minerLoop();
+}
+
+function randomizeMinerTarget() {
+  minerTargetWidth = Math.max(8, 20 - (qMinerMult * 0.5));
+  minerTargetPos = Math.random() * (100 - minerTargetWidth);
+  const targetEl = document.getElementById('minerTarget');
+  targetEl.style.left = minerTargetPos + '%';
+  targetEl.style.width = minerTargetWidth + '%';
+}
+
+function minerLoop() {
+  if (!isMinerActive) return;
+  
+  minerPos += minerDir * minerSpeed;
+  if (minerPos >= 100 || minerPos <= 0) minerDir *= -1;
+  
+  document.getElementById('minerCursor').style.left = minerPos + '%';
+  minerRaf = requestAnimationFrame(minerLoop);
+}
+
+function mineQuantum() {
+  if (!isMinerActive) return;
+  
+  const inZone = minerPos >= minerTargetPos && minerPos <= (minerTargetPos + minerTargetWidth);
+  
+  if (inZone) {
+    const reward = 1 * qMinerMult;
+    minerScore += reward;
+    addCoins(reward);
+    qMinerMult++;
+    minerSpeed = Math.min(6, 2 + (qMinerMult * 0.2));
+    document.getElementById('minerMsg').textContent = "STRIKE! MULTIPLIER UP";
+    document.getElementById('minerMsg').style.color = "var(--neon-green)";
+    playCoinSound();
+    
+    const container = document.getElementById('minerBtnContainer');
+    container.style.transform = 'scale(0.9)';
+    setTimeout(() => container.style.transform = 'scale(1)', 100);
+  } else {
+    document.getElementById('minerMsg').textContent = "SYNC LOST! MULTIPLIER RESET";
+    document.getElementById('minerMsg').style.color = "#ff4444";
+    qMinerMult = 1;
+    minerSpeed = 2;
+    showToast("Precision Failed", "#ff4444");
+    
+    const track = document.querySelector('.miner-track');
+    track.style.borderColor = '#ff4444';
+    setTimeout(() => track.style.borderColor = '', 300);
+  }
+  
+  document.getElementById('minerMult').textContent = qMinerMult + 'x';
+  document.getElementById('minerSession').textContent = minerScore;
+  randomizeMinerTarget();
+}
+
+/* =====================================================
+   NEURAL LINK LOGIC (LIGHTS OUT)
+===================================================== */
+let linkNodes = [], linkMoves = 0, isLinkActive = false;
+
+function startLinkGame() {
+  initAudio();
+  isLinkActive = true;
+  linkMoves = 0;
+  document.getElementById('linkMoves').textContent = '0';
+  document.getElementById('linkMsg').textContent = "LINK STATUS: ENCRYPTED";
+  document.getElementById('linkMsg').style.color = "var(--neon-purple)";
+  createLinkGrid();
+  document.getElementById('startLinkBtn').querySelector('span').textContent = '↺ REBOOT LINK';
+}
+
+function createLinkGrid() {
+  const grid = document.getElementById('linkGrid');
+  grid.innerHTML = '';
+  linkNodes = Array(16).fill(false);
+
+  for (let i = 0; i < 16; i++) {
+    const node = document.createElement('div');
+    node.className = 'link-node';
+    node.innerHTML = `<img src="image/logo.png" alt="X">`;
+    node.onclick = () => toggleLinkNode(i);
+    grid.appendChild(node);
+  }
+
+  // Scramble grid (solveable)
+  for (let i = 0; i < 12; i++) {
+    const rand = Math.floor(Math.random() * 16);
+    applyToggle(rand, true);
+  }
+  updateLinkUI();
+}
+
+function toggleLinkNode(idx) {
+  if (!isLinkActive) return;
+  linkMoves++;
+  document.getElementById('linkMoves').textContent = linkMoves;
+  applyToggle(idx);
+  updateLinkUI();
+  checkLinkWin();
+}
+
+function applyToggle(idx, silent = false) {
+  const r = Math.floor(idx / 4);
+  const c = idx % 4;
+  const targets = [[r,c], [r-1,c], [r+1,c], [r,c-1], [r,c+1]];
+  
+  targets.forEach(([tr, tc]) => {
+    if (tr >= 0 && tr < 4 && tc >= 0 && tc < 4) {
+      const tidx = tr * 4 + tc;
+      linkNodes[tidx] = !linkNodes[tidx];
+    }
+  });
+  if (!silent) playCoinSound();
+}
+
+function updateLinkUI() {
+  const els = document.querySelectorAll('.link-node');
+  linkNodes.forEach((active, i) => active ? els[i].classList.add('active') : els[i].classList.remove('active'));
+}
+
+function checkLinkWin() {
+  if (linkNodes.every(v => v === true)) {
+    isLinkActive = false;
+    addCoins(25);
+    document.getElementById('linkMsg').textContent = "LINK ESTABLISHED! +25 COINS";
+    document.getElementById('linkMsg').style.color = "var(--neon-green)";
+    showToast("System Breached: +25 Coins", "#00ff88");
+  }
+}
 
 </script>
 </body>
