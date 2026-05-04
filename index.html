@@ -950,6 +950,8 @@
     <a href="#airdrop">Airdrop</a>
     <a href="#wallet">Wallet</a>
     <a href="#social">Social Tasks</a>
+    <a href="https://pump.fun/coin/2TXuH4wr1qoFSktFPeFLwp9pCykPDVcVuGPT4oNgpump" target="_blank">Trade</a>
+    <a href="#" onclick="showToast('Withdrawal Coming Soon...', '#bf00ff'); return false;">Withdraw</a>
   </nav>
 
   <div style="display:flex;align-items:center;gap:12px;">
@@ -967,6 +969,8 @@
   <a href="#airdrop" onclick="closeDrawer()">🎁 Airdrop</a>
   <a href="#wallet" onclick="closeDrawer()">👛 Wallet</a>
   <a href="#social" onclick="closeDrawer()">📢 Social Tasks</a>
+  <a href="https://pump.fun/coin/2TXuH4wr1qoFSktFPeFLwp9pCykPDVcVuGPT4oNgpump" target="_blank" onclick="closeDrawer()">📈 Trade</a>
+  <a href="#" onclick="showToast('Withdrawal Coming Soon...', '#bf00ff'); closeDrawer(); return false;">💸 Withdraw</a>
 </div>
 
 <!-- ===================================================
@@ -983,6 +987,7 @@
     <div class="hero-buttons">
       <button class="btn btn-lg" onclick="scrollToSection('game')"><span>Play Game 🎮</span></button>
       <button class="btn btn-purple btn-lg" onclick="connectMetaMask()"><span>Connect Wallet 💼</span></button>
+      <a href="https://pump.fun/coin/2TXuH4wr1qoFSktFPeFLwp9pCykPDVcVuGPT4oNgpump" target="_blank" class="btn btn-green btn-lg" style="display:inline-block; text-decoration:none;"><span>Trade on Pump.fun 🚀</span></a>
     </div>
   </div>
 </section>
@@ -1109,6 +1114,17 @@
       <button class="btn btn-sm btn-green" onclick="resetCoins()"><span>🗑 Reset Coins</span></button>
     </div>
 
+    <!-- Trade & Withdraw -->
+    <div class="wallet-card card reveal">
+      <span class="wallet-icon">💸</span>
+      <div class="wallet-name">Manage Funds</div>
+      <p class="wallet-desc">Trade your tokens or withdraw to your external wallet.</p>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <a href="https://pump.fun/coin/2TXuH4wr1qoFSktFPeFLwp9pCykPDVcVuGPT4oNgpump" target="_blank" class="btn btn-sm"><span>Trade on Pump.fun</span></a>
+        <button class="btn btn-purple btn-sm" onclick="showToast('Withdrawals Coming Soon...', '#bf00ff')"><span>Withdraw (Coming Soon)</span></button>
+      </div>
+    </div>
+
   </div>
 </section>
 
@@ -1197,18 +1213,12 @@
       <div class="footer-heading">COMMUNITY</div>
       <ul class="footer-links">
         <li><a href="https://x.com/AaarushSharmaaa" target="_blank">X (Twitter)</a></li>
-        <li><a href="#">Telegram</a></li>
-        <li><a href="#">Discord</a></li>
-        <li><a href="#">GitHub</a></li>
       </ul>
     </div>
     <div>
       <div class="footer-heading">FOLLOW US</div>
       <div class="social-row">
         <a href="https://x.com/AaarushSharmaaa" target="_blank" class="social-btn" title="X/Twitter">𝕏</a>
-        <a href="#" class="social-btn" title="Telegram">✈</a>
-        <a href="#" class="social-btn" title="Discord">🎮</a>
-        <a href="#" class="social-btn" title="GitHub">⚙</a>
       </div>
     </div>
   </div>
@@ -1230,6 +1240,10 @@ let coins = parseInt(localStorage.getItem('xolvira_coins') || '0');
 let completedTasks = JSON.parse(localStorage.getItem('xolvira_tasks') || '{}');
 let connectedWallet = localStorage.getItem('xolvira_wallet') || null;
 let walletType     = localStorage.getItem('xolvira_wallet_type') || null;
+
+/* GAME ASSETS */
+const coinImg = new Image();
+coinImg.src = 'image/logo.png';
 
 /* =====================================================
    AUDIO — coin collect sound (Web Audio API, no file needed)
@@ -1584,10 +1598,10 @@ canvas.addEventListener('touchmove', e => {
 /* Spawn a coin */
 function spawnCoin() {
   const types = [
-    { color: '#ffee00', shadow: '#ffee00', value: 1,  r: 12, label: '1', isGolden: false },
-    { color: '#00f0ff', shadow: '#00f0ff', value: 2,  r: 10, label: '2', isGolden: false },
-    { color: '#bf00ff', shadow: '#bf00ff', value: 3,  r: 8,  label: '3', isGolden: false },
-    { color: '#00ff88', shadow: '#00ff88', value: 5,  r: 7,  label: '5', isGolden: false },
+    { color: '#ffee00', shadow: '#ffee00', value: 1,  r: 20, label: '1',  speedMod: 1 },
+    { color: '#00f0ff', shadow: '#00f0ff', value: 5,  r: 16, label: '5',  speedMod: 1.3 },
+    { color: '#bf00ff', shadow: '#bf00ff', value: 10, r: 12, label: '10', speedMod: 1.8 },
+    { color: '#00ff88', shadow: '#00ff88', value: 25, r: 10, label: '25', speedMod: 2.5 },
   ];
 
   let coinType = types[Math.floor(Math.random() * types.length)];
@@ -1601,7 +1615,7 @@ function spawnCoin() {
     x: coinType.r + Math.random() * (W - coinType.r * 2),
     y: -coinType.r,
     r: coinType.r,
-    vy: 1.5 + Math.random() * 2.5 + sessionScore * 0.003,
+    vy: (1.5 + Math.random() * 2) * coinType.speedMod + (sessionScore * 0.001),
     ...coinType,
     sparkles: [],
     caught: false,
@@ -1613,22 +1627,18 @@ function drawCoin(c) {
   ctx.save();
   ctx.shadowColor = c.shadow;
   ctx.shadowBlur  = 14;
-  ctx.fillStyle   = c.color;
 
-  // Pixel circle
-  ctx.beginPath();
-  ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Inner shine
-  ctx.fillStyle = 'rgba(255,255,255,0.35)';
-  ctx.beginPath();
-  ctx.arc(c.x - c.r * 0.28, c.y - c.r * 0.28, c.r * 0.38, 0, Math.PI * 2);
-  ctx.fill();
+  // Draw the logo image
+  if (coinImg.complete) {
+    ctx.drawImage(coinImg, c.x - c.r, c.y - c.r, c.r * 2, c.r * 2);
+  } else {
+    ctx.fillStyle = c.color;
+    ctx.beginPath(); ctx.arc(c.x, c.y, c.r, 0, Math.PI*2); ctx.fill();
+  }
 
   // Label
-  ctx.fillStyle = 'rgba(0,0,0,0.7)';
-  ctx.font      = `bold ${Math.max(7, c.r * 0.7)}px monospace`;
+  ctx.fillStyle = '#fff';
+  ctx.font      = `bold ${Math.max(8, c.r * 0.8)}px "Share Tech Mono"`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.shadowBlur = 0;
