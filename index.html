@@ -138,12 +138,21 @@
       justify-content: space-between;
     }
 
+    .logo-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
     .header-logo {
-      height: 40px; /* Adjust based on header height */
+      height: 32px;
+      width: 32px;
       object-fit: contain;
+      image-rendering: pixelated;
       filter: drop-shadow(0 0 16px var(--neon-blue)) drop-shadow(0 0 32px var(--neon-blue));
       transition: filter 0.3s ease;
     }
+
     .header-logo:hover {
       filter: drop-shadow(0 0 20px var(--neon-blue)) drop-shadow(0 0 40px var(--neon-blue));
     }
@@ -502,8 +511,12 @@
     }
 
     .airdrop-promo img {
-      max-width: 100%;
+      max-width: 800px;
+      width: 100%;
       height: auto;
+      border: 2px solid var(--neon-purple);
+      box-shadow: 0 0 20px rgba(191, 0, 255, 0.3);
+      border-radius: 4px;
     }
 
     .steps-grid {
@@ -776,6 +789,13 @@
       margin-bottom: 12px;
     }
     .footer-desc { font-size: 11px; color: rgba(200,216,232,0.5); line-height: 1.7; }
+    
+    .footer-brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
 
     .footer-heading {
       font-family: var(--pixel);
@@ -912,7 +932,7 @@
 ==================================================== -->
 <div id="unlockBanner">
   <div class="unlock-title">🎉 AIRDROP UNLOCKED!</div>
-  <p class="unlock-sub">You've collected 100+ XOLVIRA Coins. You are now eligible for the <strong>$5,000 AIRDROP</strong>! Stay active for the snapshot.</p>
+  <p class="unlock-sub">You've collected 500+ XOLVIRA Coins. You are now eligible for the <strong>$5,000 AIRDROP</strong>! Stay active for the snapshot.</p>
 </div>
 
 <!-- ===================================================
@@ -920,7 +940,8 @@
 ==================================================== -->
 <header>
   <a href="#home" class="logo-link">
-    <img src="image/logo.png" alt="XOLVIRA Logo" class="header-logo">
+    <img src="image/logo.png" alt="XOLVIRA Potion" class="header-logo">
+    <div class="logo">X<span>OL</span>VIRA</div>
   </a>
 
   <nav id="mainNav">
@@ -958,7 +979,7 @@
     <span class="hero-badge">🟢 LIVE &nbsp;|&nbsp; LIMITED ALLOCATION</span>
     <h1 class="hero-title">🚀 <span class="highlight">$5,000 XOLVIRA</span><br>AIRDROP IS COMING</h1>
     <span class="hero-amount">$5,000</span>
-    <p class="hero-sub">Play. Earn. Dominate the Future of Crypto Gaming.<br>Collect 100 coins to qualify for the biggest airdrop of 2026.</p>
+    <p class="hero-sub">Play. Earn. Dominate the Future of Crypto Gaming.<br>Collect 500 coins to qualify for the biggest airdrop of 2026.</p>
     <div class="hero-buttons">
       <button class="btn btn-lg" onclick="scrollToSection('game')"><span>Play Game 🎮</span></button>
       <button class="btn btn-purple btn-lg" onclick="connectMetaMask()"><span>Connect Wallet 💼</span></button>
@@ -972,11 +993,11 @@
 <section id="airdrop">
   <div class="neon-divider"></div>
   <span class="section-label reveal">// AIRDROP PROTOCOL</span>
-  <h2 class="section-title reveal">🎁 Earn 100 Coins to Qualify for $5,000 Airdrop</h2>
+  <h2 class="section-title reveal">🎁 Earn 500 Coins to Qualify for $5,000 Airdrop</h2>
 
   <div class="airdrop-promo reveal">
     <!-- Replaced text promo with image banner -->
-    <img src="image/$5000.png" alt="$5,000 Airdrop Promotional Banner">
+    <img src="image/$5000.png" alt="XOLVIRA $5,000 Airdrop Instructions">
     <!-- <div class="promo-text">🏆 TOTAL POOL: $5,000 USDT · SNAPSHOT: TBA · CHAIN: ETH / SOLANA</div> -->
   </div>
 
@@ -984,7 +1005,7 @@
   <div class="progress-wrap reveal">
     <div class="progress-label">
       <span>YOUR PROGRESS</span>
-      <span><span id="progressVal">0</span>/100 COINS</span>
+      <span><span id="progressVal">0</span>/500 COINS</span>
     </div>
     <div class="progress-bar-bg">
       <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
@@ -1035,7 +1056,7 @@
     <div class="game-hud">
       <div class="hud-box">SESSION SCORE<span class="hud-val" id="sessionScore">0</span></div>
       <div class="hud-box">TOTAL COINS<span class="hud-val" id="totalCoinsDisplay">0</span></div>
-      <div class="hud-box">NEEDED<span class="hud-val" style="color:var(--neon-purple);">100</span></div>
+      <div class="hud-box">NEEDED<span class="hud-val" style="color:var(--neon-purple);">500</span></div>
     </div>
 
     <canvas id="gameCanvas" width="640" height="400"></canvas>
@@ -1083,7 +1104,7 @@
     <div class="wallet-card card reveal">
       <span class="wallet-icon">🪙</span>
       <div class="wallet-name">Coin Balance</div>
-      <p class="wallet-desc">Your XOLVIRA coins earned in-game. 100 needed to qualify.</p>
+      <p class="wallet-desc">Your XOLVIRA coins earned in-game. 500 needed to qualify.</p>
       <div style="font-family:var(--pixel);font-size:28px;color:var(--neon-yellow);text-shadow:0 0 16px var(--neon-yellow);margin:12px 0;" id="walletCoinBig">0</div>
       <button class="btn btn-sm btn-green" onclick="resetCoins()"><span>🗑 Reset Coins</span></button>
     </div>
@@ -1157,7 +1178,10 @@
 <footer>
   <div class="footer-grid">
     <div>
-      <div class="footer-logo">XOLVIRA</div>
+      <div class="footer-brand-wrap">
+        <img src="image/circlelogo.png" alt="Xolvira Seal" style="width: 50px; height: 50px; image-rendering: pixelated;">
+        <div class="footer-logo">XOLVIRA</div>
+      </div>
       <p class="footer-desc">The next-gen crypto gaming ecosystem. Play, earn, and dominate the blockchain frontier.</p>
     </div>
     <div>
@@ -1234,6 +1258,55 @@ function playCoinSound() {
   } catch(e) {}  // silently fail if browser blocks autoplay
 }
 
+let bgmInterval = null;
+function playGameplayBGM() {
+  if (bgmInterval) return;
+  const melody = [440, 523, 659, 783, 659, 523]; // A4, C5, E5, G5...
+  let step = 0;
+  bgmInterval = setInterval(() => {
+    try {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.type = 'triangle'; 
+      osc.frequency.setValueAtTime(melody[step % melody.length], audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.2);
+      step++;
+    } catch(e) {}
+  }, 200);
+}
+
+function stopBGM() {
+  if (bgmInterval) {
+    clearInterval(bgmInterval);
+    bgmInterval = null;
+  }
+}
+
+function playGameOverSadTune() {
+  const sadNotes = [330, 293, 261, 220]; // E4, D4, C4, A3
+  sadNotes.forEach((freq, i) => {
+    setTimeout(() => {
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.8);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.8);
+      } catch(e) {}
+    }, i * 500);
+  });
+}
+
 /* =====================================================
    TOAST NOTIFICATION
 ===================================================== */
@@ -1273,21 +1346,21 @@ function updateCoinUI() {
   document.getElementById('badgeCount').textContent        = c;
   document.getElementById('totalCoinsDisplay').textContent = c;
   document.getElementById('walletCoinBig').textContent     = c;
-  document.getElementById('progressVal').textContent       = Math.min(c, 100);
+  document.getElementById('progressVal').textContent       = Math.min(c, 500);
 
-  // Progress bar — capped at 100%
-  const pct = Math.min((c / 100) * 100, 100);
+  // Progress bar — capped at 500
+  const pct = Math.min((c / 500) * 100, 100);
   document.getElementById('progressFill').style.width = pct + '%';
 }
 
 function checkUnlock() {
   const banner = document.getElementById('unlockBanner');
-  if (coins >= 100) {
+  if (coins >= 500) {
     banner.style.display = 'block';
     // Place banner before airdrop section
     const airdrop = document.getElementById('airdrop');
     airdrop.parentNode.insertBefore(banner, airdrop);
-    showToast('🎉 AIRDROP UNLOCKED! 100 Coins reached!', '#ffee00');
+    showToast('🎉 AIRDROP UNLOCKED! 500 Coins reached!', '#ffee00');
   }
 }
 
@@ -1511,18 +1584,25 @@ canvas.addEventListener('touchmove', e => {
 /* Spawn a coin */
 function spawnCoin() {
   const types = [
-    { color: '#ffee00', shadow: '#ffee00', value: 1,  r: 12, label: '1' },
-    { color: '#00f0ff', shadow: '#00f0ff', value: 2,  r: 10, label: '2' },
-    { color: '#bf00ff', shadow: '#bf00ff', value: 3,  r: 8,  label: '3' },
-    { color: '#00ff88', shadow: '#00ff88', value: 5,  r: 7,  label: '5' },
+    { color: '#ffee00', shadow: '#ffee00', value: 1,  r: 12, label: '1', isGolden: false },
+    { color: '#00f0ff', shadow: '#00f0ff', value: 2,  r: 10, label: '2', isGolden: false },
+    { color: '#bf00ff', shadow: '#bf00ff', value: 3,  r: 8,  label: '3', isGolden: false },
+    { color: '#00ff88', shadow: '#00ff88', value: 5,  r: 7,  label: '5', isGolden: false },
   ];
-  const t = types[Math.floor(Math.random() * types.length)];
+
+  let coinType = types[Math.floor(Math.random() * types.length)];
+
+  // 2% chance for a special Golden Coin
+  if (Math.random() < 0.02) {
+    coinType = { color: '#FFD700', shadow: '#FFD700', value: 50, r: 16, label: '50', isGolden: true };
+  }
+
   gameCoins.push({
-    x: t.r + Math.random() * (W - t.r * 2),
-    y: -t.r,
-    r: t.r,
+    x: coinType.r + Math.random() * (W - coinType.r * 2),
+    y: -coinType.r,
+    r: coinType.r,
     vy: 1.5 + Math.random() * 2.5 + sessionScore * 0.003,
-    ...t,
+    ...coinType,
     sparkles: [],
     caught: false,
   });
@@ -1742,11 +1822,14 @@ function startGame() {
   document.getElementById('startBtn').style.display   = 'none';
   document.getElementById('resetBtn').style.display   = 'inline-block';
 
+  playGameplayBGM();
+
   if (rafId) cancelAnimationFrame(rafId);
   rafId = requestAnimationFrame(gameLoop);
 }
 
 function restartGame() {
+  stopBGM();
   if (rafId) cancelAnimationFrame(rafId);
   startGame();
 }
@@ -1754,6 +1837,9 @@ function restartGame() {
 function endGame() {
   gameRunning = false;
   gameOver    = true;
+  stopBGM();
+  playGameOverSadTune();
+  
   if (rafId) cancelAnimationFrame(rafId);
 
   // Draw game-over screen
@@ -1832,7 +1918,7 @@ window.addEventListener('load', () => {
     restoreWallet();
     initReveal();
     drawIdleCanvas();
-    checkUnlock();  // show banner if already at 100
+    checkUnlock();  // show banner if already at 500
 
   }, 2200);  // Let the loading animation play
 });
