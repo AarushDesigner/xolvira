@@ -1,1 +1,1842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>XOLVIRA — Crypto Gaming Airdrop</title>
+  <link rel="icon" href="image/logo.png" type="image/png">
 
+  <!-- Pixel-style + cyberpunk display font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+
+  <style>
+    /* =====================================================
+       CSS VARIABLES — single source of truth for the palette
+    ===================================================== */
+    :root {
+      --black:       #0a0a0a;
+      --deep:        #0d0d1a;
+      --neon-blue:   #00f0ff;
+      --neon-purple: #bf00ff;
+      --neon-green:  #00ff88;
+      --neon-yellow: #ffee00;
+      --dim-blue:    rgba(0, 240, 255, 0.12);
+      --dim-purple:  rgba(191, 0, 255, 0.12);
+      --text:        #c8d8e8;
+      --pixel:       'Press Start 2P', monospace;
+      --mono:        'Share Tech Mono', monospace;
+    }
+
+    /* =====================================================
+       RESET & BASE
+    ===================================================== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--text);
+      font-family: var(--mono);
+      overflow-x: hidden;
+      cursor: default;
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--black); }
+    ::-webkit-scrollbar-thumb { background: var(--neon-blue); border-radius: 3px; }
+
+    a { color: var(--neon-blue); text-decoration: none; }
+    a:hover { text-shadow: 0 0 8px var(--neon-blue); }
+
+    /* =====================================================
+       LOADING SCREEN
+    ===================================================== */
+    #loader {
+      position: fixed; inset: 0;
+      background: var(--black);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      transition: opacity 0.6s ease;
+    }
+    #loader.hidden { opacity: 0; pointer-events: none; }
+
+    .loader-logo {
+      font-family: var(--pixel);
+      font-size: clamp(18px, 5vw, 36px);
+      color: var(--neon-blue);
+      text-shadow: 0 0 20px var(--neon-blue), 0 0 40px var(--neon-blue);
+      animation: flicker 1.5s infinite alternate;
+    }
+
+    .loader-bar-wrap {
+      width: 260px;
+      height: 14px;
+      border: 2px solid var(--neon-blue);
+      padding: 2px;
+      box-shadow: 0 0 12px var(--neon-blue);
+    }
+    .loader-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+      width: 0%;
+      animation: loadBar 2s ease-in-out forwards;
+      box-shadow: 0 0 8px var(--neon-blue);
+    }
+    .loader-text {
+      font-family: var(--pixel);
+      font-size: 8px;
+      color: var(--neon-blue);
+      letter-spacing: 2px;
+    }
+
+    @keyframes loadBar { to { width: 100%; } }
+    @keyframes flicker {
+      0%, 90% { opacity: 1; }
+      92%      { opacity: 0.4; }
+      94%      { opacity: 1; }
+      96%      { opacity: 0.2; }
+      100%     { opacity: 1; }
+    }
+
+    /* =====================================================
+       SCANLINE OVERLAY (ambient effect)
+    ===================================================== */
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 240, 255, 0.015) 2px,
+        rgba(0, 240, 255, 0.015) 4px
+      );
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    /* =====================================================
+       HEADER / NAV
+    ===================================================== */
+    header {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 500;
+      background: rgba(10, 10, 10, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(0, 240, 255, 0.25);
+      padding: 0 5%;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header-logo {
+      height: 40px; /* Adjust based on header height */
+      object-fit: contain;
+      filter: drop-shadow(0 0 16px var(--neon-blue)) drop-shadow(0 0 32px var(--neon-blue));
+      transition: filter 0.3s ease;
+    }
+    .header-logo:hover {
+      filter: drop-shadow(0 0 20px var(--neon-blue)) drop-shadow(0 0 40px var(--neon-blue));
+    }
+
+    .logo {
+      font-family: var(--pixel);
+      font-size: clamp(12px, 2.5vw, 20px);
+      color: var(--neon-blue);
+      text-shadow: 0 0 16px var(--neon-blue), 0 0 32px var(--neon-blue);
+      letter-spacing: 3px;
+      white-space: nowrap;
+    }
+    .logo span { color: var(--neon-purple); text-shadow: 0 0 16px var(--neon-purple); }
+
+    nav {
+      display: flex;
+      align-items: center;
+      gap: clamp(12px, 2vw, 28px);
+    }
+
+    nav a {
+      font-family: var(--pixel);
+      font-size: 8px;
+      color: var(--text);
+      letter-spacing: 1px;
+      transition: color 0.2s, text-shadow 0.2s;
+      white-space: nowrap;
+    }
+    nav a:hover {
+      color: var(--neon-blue);
+      text-shadow: 0 0 10px var(--neon-blue);
+    }
+
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 4px;
+    }
+    .hamburger span {
+      width: 22px; height: 2px;
+      background: var(--neon-blue);
+      box-shadow: 0 0 6px var(--neon-blue);
+      transition: transform 0.3s;
+    }
+
+    /* Mobile nav drawer */
+    .nav-drawer {
+      display: none;
+      position: fixed;
+      top: 64px; left: 0; right: 0;
+      background: rgba(10,10,10,0.97);
+      border-bottom: 1px solid rgba(0,240,255,0.2);
+      flex-direction: column;
+      padding: 20px;
+      gap: 16px;
+      z-index: 490;
+    }
+    .nav-drawer.open { display: flex; }
+    .nav-drawer a {
+      font-family: var(--pixel);
+      font-size: 9px;
+      color: var(--text);
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(0,240,255,0.1);
+    }
+
+    /* =====================================================
+       BUTTONS — reusable neon variants
+    ===================================================== */
+    .btn {
+      font-family: var(--pixel);
+      font-size: 9px;
+      letter-spacing: 1px;
+      padding: 12px 20px;
+      border: 2px solid var(--neon-blue);
+      background: transparent;
+      color: var(--neon-blue);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.25s ease;
+      box-shadow: 0 0 12px rgba(0,240,255,0.3), inset 0 0 12px rgba(0,240,255,0.05);
+      white-space: nowrap;
+    }
+    .btn::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: var(--neon-blue);
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+    .btn:hover { color: var(--black); box-shadow: 0 0 24px var(--neon-blue), 0 0 48px rgba(0,240,255,0.4); }
+    .btn:hover::before { opacity: 1; }
+    .btn span { position: relative; z-index: 1; }
+
+    .btn-purple {
+      border-color: var(--neon-purple);
+      color: var(--neon-purple);
+      box-shadow: 0 0 12px rgba(191,0,255,0.3), inset 0 0 12px rgba(191,0,255,0.05);
+    }
+    .btn-purple::before { background: var(--neon-purple); }
+    .btn-purple:hover { color: var(--black); box-shadow: 0 0 24px var(--neon-purple), 0 0 48px rgba(191,0,255,0.4); }
+
+    .btn-green {
+      border-color: var(--neon-green);
+      color: var(--neon-green);
+      box-shadow: 0 0 12px rgba(0,255,136,0.3);
+    }
+    .btn-green::before { background: var(--neon-green); }
+    .btn-green:hover { color: var(--black); box-shadow: 0 0 24px var(--neon-green); }
+
+    .btn-sm { padding: 9px 16px; font-size: 7px; }
+    .btn-lg { padding: 16px 32px; font-size: 10px; }
+
+    /* Connect Wallet in header */
+    #headerConnectBtn {
+      font-family: var(--pixel);
+      font-size: 7px;
+      padding: 9px 14px;
+      border: 2px solid var(--neon-blue);
+      background: var(--dim-blue);
+      color: var(--neon-blue);
+      cursor: pointer;
+      transition: all 0.25s;
+      box-shadow: 0 0 12px rgba(0,240,255,0.4);
+      white-space: nowrap;
+    }
+    #headerConnectBtn:hover {
+      background: var(--neon-blue);
+      color: var(--black);
+      box-shadow: 0 0 24px var(--neon-blue);
+    }
+
+    /* =====================================================
+       SECTIONS — shared layout
+    ===================================================== */
+    section { padding: 100px 5%; }
+
+    .section-label {
+      font-family: var(--pixel);
+      font-size: 8px;
+      color: var(--neon-purple);
+      letter-spacing: 4px;
+      text-shadow: 0 0 8px var(--neon-purple);
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .section-title {
+      font-family: var(--pixel);
+      font-size: clamp(14px, 3vw, 26px);
+      color: var(--neon-blue);
+      text-shadow: 0 0 20px var(--neon-blue);
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    /* Neon card */
+    .card {
+      background: rgba(13, 13, 26, 0.8);
+      border: 1px solid rgba(0,240,255,0.2);
+      padding: 28px;
+      position: relative;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .card::before {
+      content: '';
+      position: absolute; top: 0; left: 0;
+      width: 40px; height: 40px;
+      border-top: 2px solid var(--neon-blue);
+      border-left: 2px solid var(--neon-blue);
+    }
+    .card::after {
+      content: '';
+      position: absolute; bottom: 0; right: 0;
+      width: 40px; height: 40px;
+      border-bottom: 2px solid var(--neon-purple);
+      border-right: 2px solid var(--neon-purple);
+    }
+    .card:hover {
+      border-color: rgba(0,240,255,0.5);
+      box-shadow: 0 0 30px rgba(0,240,255,0.1);
+    }
+
+    /* Divider */
+    .neon-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--neon-blue), var(--neon-purple), transparent);
+      margin: 0 0 60px;
+      box-shadow: 0 0 8px var(--neon-blue);
+    }
+
+    /* =====================================================
+       HERO SECTION
+    ===================================================== */
+    #home {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding-top: 120px;
+      padding-bottom: 60px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Animated grid background */
+    #home::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(0,240,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,240,255,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      animation: gridScroll 20s linear infinite;
+    }
+    @keyframes gridScroll {
+      from { background-position: 0 0; }
+      to   { background-position: 0 40px; }
+    }
+
+    /* Glow orbs */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+    }
+    .orb-1 { width: 500px; height: 500px; background: rgba(0,240,255,0.06); top: -100px; right: -100px; animation: floatOrb 8s ease-in-out infinite; }
+    .orb-2 { width: 400px; height: 400px; background: rgba(191,0,255,0.06); bottom: 0; left: -80px; animation: floatOrb 11s ease-in-out infinite reverse; }
+    @keyframes floatOrb {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50%       { transform: translateY(-40px) scale(1.05); }
+    }
+
+    .hero-content { position: relative; z-index: 2; max-width: 800px; }
+
+    .hero-badge {
+      display: inline-block;
+      font-family: var(--pixel);
+      font-size: 7px;
+      color: var(--neon-green);
+      border: 1px solid var(--neon-green);
+      padding: 6px 14px;
+      letter-spacing: 3px;
+      margin-bottom: 28px;
+      box-shadow: 0 0 10px rgba(0,255,136,0.3);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 10px rgba(0,255,136,0.3); }
+      50%       { box-shadow: 0 0 20px rgba(0,255,136,0.6), 0 0 40px rgba(0,255,136,0.2); }
+    }
+
+    .hero-title {
+      font-family: var(--pixel);
+      font-size: clamp(16px, 4vw, 40px);
+      line-height: 1.6;
+      color: #fff;
+      text-shadow: 0 0 30px rgba(0,240,255,0.5);
+      margin-bottom: 10px;
+    }
+    .hero-title .highlight {
+      color: var(--neon-blue);
+      text-shadow: 0 0 20px var(--neon-blue), 0 0 40px var(--neon-blue);
+      display: inline-block;
+      animation: textGlow 2s ease-in-out infinite alternate;
+    }
+    @keyframes textGlow {
+      from { text-shadow: 0 0 20px var(--neon-blue), 0 0 40px var(--neon-blue); }
+      to   { text-shadow: 0 0 30px var(--neon-blue), 0 0 60px var(--neon-blue), 0 0 80px rgba(0,240,255,0.4); }
+    }
+
+    .hero-amount {
+      font-family: var(--pixel);
+      font-size: clamp(28px, 6vw, 64px);
+      color: var(--neon-yellow);
+      text-shadow: 0 0 20px var(--neon-yellow), 0 0 40px rgba(255,238,0,0.5);
+      margin: 8px 0 24px;
+      display: block;
+      animation: textGlowYellow 1.5s ease-in-out infinite alternate;
+    }
+    @keyframes textGlowYellow {
+      from { text-shadow: 0 0 20px var(--neon-yellow); }
+      to   { text-shadow: 0 0 40px var(--neon-yellow), 0 0 80px rgba(255,238,0,0.3); }
+    }
+
+    .hero-sub {
+      font-size: clamp(12px, 1.8vw, 16px);
+      color: rgba(200,216,232,0.75);
+      margin-bottom: 40px;
+      line-height: 1.8;
+      max-width: 520px;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    /* Coin counter floating badge */
+    #coinBadge {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      z-index: 400;
+      background: rgba(10,10,10,0.92);
+      border: 2px solid var(--neon-yellow);
+      padding: 10px 18px;
+      font-family: var(--pixel);
+      font-size: 8px;
+      color: var(--neon-yellow);
+      box-shadow: 0 0 16px rgba(255,238,0,0.4);
+      cursor: pointer;
+      transition: all 0.25s;
+      backdrop-filter: blur(8px);
+    }
+    #coinBadge:hover { box-shadow: 0 0 28px rgba(255,238,0,0.7); }
+    #coinBadge .coin-icon { font-size: 14px; }
+
+    /* =====================================================
+       AIRDROP SECTION
+    ===================================================== */
+    #airdrop { background: var(--deep); }
+
+    .airdrop-promo {
+      background: linear-gradient(135deg, rgba(0,240,255,0.05), rgba(191,0,255,0.05));
+      border: 1px solid rgba(0,240,255,0.3);
+      padding: 28px 32px;
+      margin-bottom: 48px;
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+      box-shadow: 0 0 40px rgba(0,240,255,0.07), inset 0 0 60px rgba(0,240,255,0.03);
+    }
+    .airdrop-promo::before {
+      content: '';
+      position: absolute; top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(0,240,255,0.08), transparent);
+      animation: shimmer 3s ease-in-out infinite;
+    }
+    @keyframes shimmer {
+      from { left: -100%; }
+      to   { left: 100%; }
+    }
+
+    .promo-text {
+      font-family: var(--pixel);
+      font-size: clamp(10px, 2vw, 16px);
+      color: var(--neon-yellow);
+      text-shadow: 0 0 12px var(--neon-yellow);
+      position: relative; z-index: 1;
+    }
+
+    .airdrop-promo img {
+      max-width: 100%;
+      height: auto;
+    }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    .step-card {
+      background: rgba(0,240,255,0.03);
+      border: 1px solid rgba(0,240,255,0.15);
+      padding: 24px 20px;
+      text-align: center;
+      transition: all 0.3s;
+      position: relative;
+    }
+    .step-card:hover {
+      border-color: var(--neon-blue);
+      box-shadow: 0 0 20px rgba(0,240,255,0.2);
+      transform: translateY(-4px);
+    }
+
+    .step-num {
+      display: inline-block;
+      width: 36px; height: 36px;
+      border: 2px solid var(--neon-purple);
+      font-family: var(--pixel);
+      font-size: 12px;
+      color: var(--neon-purple);
+      text-shadow: 0 0 10px var(--neon-purple);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 16px;
+    }
+
+    .step-title {
+      font-family: var(--pixel);
+      font-size: 8px;
+      color: var(--neon-blue);
+      margin-bottom: 10px;
+      line-height: 1.6;
+    }
+    .step-desc { font-size: 11px; color: rgba(200,216,232,0.6); line-height: 1.6; }
+
+    /* Progress bar */
+    .progress-wrap {
+      margin: 40px 0 12px;
+    }
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--pixel);
+      font-size: 7px;
+      color: var(--neon-blue);
+      margin-bottom: 8px;
+    }
+    .progress-bar-bg {
+      height: 12px;
+      background: rgba(0,240,255,0.1);
+      border: 1px solid rgba(0,240,255,0.25);
+      position: relative;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+      box-shadow: 0 0 8px var(--neon-blue);
+      transition: width 0.6s ease;
+    }
+
+    /* =====================================================
+       GAME SECTION
+    ===================================================== */
+    #game { position: relative; }
+
+    .game-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    #gameCanvas {
+      display: block;
+      border: 2px solid var(--neon-blue);
+      box-shadow: 0 0 30px rgba(0,240,255,0.3), 0 0 60px rgba(0,240,255,0.1);
+      image-rendering: pixelated;
+      cursor: crosshair;
+      max-width: 100%;
+    }
+
+    .game-hud {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .hud-box {
+      background: rgba(0,240,255,0.05);
+      border: 1px solid rgba(0,240,255,0.3);
+      padding: 10px 20px;
+      font-family: var(--pixel);
+      font-size: 9px;
+      color: var(--neon-blue);
+      text-align: center;
+    }
+    .hud-val {
+      font-size: 20px;
+      color: var(--neon-yellow);
+      text-shadow: 0 0 10px var(--neon-yellow);
+      display: block;
+      margin-top: 4px;
+    }
+
+    #gameMsg {
+      font-family: var(--pixel);
+      font-size: clamp(8px, 2vw, 12px);
+      color: var(--neon-green);
+      text-shadow: 0 0 12px var(--neon-green);
+      text-align: center;
+      min-height: 28px;
+    }
+
+    /* =====================================================
+       WALLET SECTION
+    ===================================================== */
+    #wallet { background: var(--deep); }
+
+    .wallet-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+
+    .wallet-card {
+      background: rgba(13,13,26,0.9);
+      border: 1px solid rgba(0,240,255,0.15);
+      padding: 32px;
+      text-align: center;
+      transition: all 0.3s;
+      position: relative;
+    }
+    .wallet-card:hover {
+      border-color: var(--neon-blue);
+      box-shadow: 0 0 24px rgba(0,240,255,0.15);
+    }
+    .wallet-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      display: block;
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-8px); }
+    }
+    .wallet-name {
+      font-family: var(--pixel);
+      font-size: 12px;
+      color: var(--neon-blue);
+      text-shadow: 0 0 10px var(--neon-blue);
+      margin-bottom: 8px;
+    }
+    .wallet-desc { font-size: 11px; color: rgba(200,216,232,0.5); margin-bottom: 24px; }
+
+    .wallet-info {
+      margin-top: 24px;
+      padding: 16px;
+      background: rgba(0,240,255,0.05);
+      border: 1px solid rgba(0,240,255,0.2);
+      font-family: var(--pixel);
+      font-size: 7px;
+      color: var(--neon-green);
+      word-break: break-all;
+      line-height: 1.8;
+    }
+    .wallet-info.hidden { display: none; }
+
+    /* =====================================================
+       SOCIAL TASKS SECTION
+    ===================================================== */
+    #social {}
+
+    .tasks-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+    }
+
+    .task-card {
+      background: rgba(191,0,255,0.04);
+      border: 1px solid rgba(191,0,255,0.2);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: all 0.3s;
+      position: relative;
+    }
+    .task-card:hover { border-color: var(--neon-purple); box-shadow: 0 0 20px rgba(191,0,255,0.2); transform: translateY(-3px); }
+
+    .task-icon { font-size: 28px; }
+    .task-title {
+      font-family: var(--pixel);
+      font-size: 8px;
+      color: var(--neon-purple);
+      text-shadow: 0 0 8px var(--neon-purple);
+      line-height: 1.6;
+    }
+    .task-desc { font-size: 11px; color: rgba(200,216,232,0.6); line-height: 1.5; }
+    .task-reward {
+      font-family: var(--pixel);
+      font-size: 7px;
+      color: var(--neon-yellow);
+    }
+    .task-done {
+      position: absolute; top: 12px; right: 12px;
+      font-size: 16px;
+      display: none;
+    }
+    .task-card.completed .task-done { display: block; }
+    .task-card.completed { border-color: rgba(0,255,136,0.4); }
+
+    /* =====================================================
+       COIN UNLOCK BANNER
+    ===================================================== */
+    #unlockBanner {
+      display: none;
+      background: linear-gradient(135deg, rgba(0,255,136,0.1), rgba(0,240,255,0.1));
+      border: 2px solid var(--neon-green);
+      padding: 24px;
+      margin: 40px 5%;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 0 40px rgba(0,255,136,0.2);
+      animation: unlock 0.6s ease;
+    }
+    @keyframes unlock {
+      from { transform: scale(0.95); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+    .unlock-title {
+      font-family: var(--pixel);
+      font-size: clamp(12px, 3vw, 20px);
+      color: var(--neon-green);
+      text-shadow: 0 0 20px var(--neon-green);
+      margin-bottom: 12px;
+    }
+    .unlock-sub { font-size: 13px; color: rgba(200,216,232,0.7); }
+
+    /* =====================================================
+       FOOTER
+    ===================================================== */
+    footer {
+      background: rgba(5,5,12,0.95);
+      border-top: 1px solid rgba(0,240,255,0.2);
+      padding: 40px 5% 24px;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 32px;
+      margin-bottom: 32px;
+    }
+    .footer-logo {
+      font-family: var(--pixel);
+      font-size: 16px;
+      color: var(--neon-blue);
+      text-shadow: 0 0 16px var(--neon-blue);
+      margin-bottom: 12px;
+    }
+    .footer-desc { font-size: 11px; color: rgba(200,216,232,0.5); line-height: 1.7; }
+
+    .footer-heading {
+      font-family: var(--pixel);
+      font-size: 8px;
+      color: var(--neon-purple);
+      text-shadow: 0 0 8px var(--neon-purple);
+      margin-bottom: 14px;
+      letter-spacing: 2px;
+    }
+    .footer-links { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .footer-links a { font-size: 11px; color: rgba(200,216,232,0.6); transition: color 0.2s; }
+    .footer-links a:hover { color: var(--neon-blue); }
+
+    .social-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 4px; }
+    .social-btn {
+      width: 38px; height: 38px;
+      border: 1px solid rgba(0,240,255,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      transition: all 0.25s;
+      cursor: pointer;
+    }
+    .social-btn:hover {
+      border-color: var(--neon-blue);
+      box-shadow: 0 0 12px rgba(0,240,255,0.4);
+      transform: scale(1.1);
+    }
+
+    .footer-bottom {
+      border-top: 1px solid rgba(0,240,255,0.1);
+      padding-top: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: gap;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .footer-copy { font-family: var(--pixel); font-size: 7px; color: rgba(200,216,232,0.4); letter-spacing: 1px; }
+
+    /* =====================================================
+       TOAST NOTIFICATION
+    ===================================================== */
+    #toast {
+      position: fixed;
+      top: 80px; right: 20px;
+      z-index: 600;
+      background: rgba(10,10,10,0.95);
+      border: 1px solid var(--neon-green);
+      padding: 12px 20px;
+      font-family: var(--pixel);
+      font-size: 8px;
+      color: var(--neon-green);
+      box-shadow: 0 0 20px rgba(0,255,136,0.4);
+      opacity: 0;
+      transform: translateX(100%);
+      transition: all 0.3s ease;
+      max-width: 280px;
+      backdrop-filter: blur(8px);
+    }
+    #toast.show { opacity: 1; transform: translateX(0); }
+
+    /* =====================================================
+       RESPONSIVE
+    ===================================================== */
+    @media (max-width: 768px) {
+      nav { display: none; }
+      .hamburger { display: flex; }
+      section { padding: 80px 4%; }
+      .hero-buttons { flex-direction: column; align-items: flex-start; }
+      .btn-lg { width: 100%; text-align: center; }
+      #gameCanvas { width: 100% !important; height: auto !important; }
+      .steps-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 480px) {
+      .steps-grid { grid-template-columns: 1fr; }
+      .tasks-grid { grid-template-columns: 1fr; }
+      .wallet-grid { grid-template-columns: 1fr; }
+    }
+
+    /* =====================================================
+       SCROLL REVEAL
+    ===================================================== */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* Stagger children */
+    .stagger > * { opacity: 0; transform: translateY(20px); transition: opacity 0.5s ease, transform 0.5s ease; }
+    .stagger.visible > *:nth-child(1) { opacity: 1; transform: translateY(0); transition-delay: 0.05s; }
+    .stagger.visible > *:nth-child(2) { opacity: 1; transform: translateY(0); transition-delay: 0.15s; }
+    .stagger.visible > *:nth-child(3) { opacity: 1; transform: translateY(0); transition-delay: 0.25s; }
+    .stagger.visible > *:nth-child(4) { opacity: 1; transform: translateY(0); transition-delay: 0.35s; }
+    .stagger.visible > *:nth-child(5) { opacity: 1; transform: translateY(0); transition-delay: 0.45s; }
+
+    /* Typed cursor effect */
+    .typed::after {
+      content: '|';
+      animation: blink 0.7s step-end infinite;
+      color: var(--neon-blue);
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+
+  </style>
+</head>
+<body>
+
+<!-- ===================================================
+     LOADING SCREEN
+==================================================== -->
+<div id="loader">
+  <div class="loader-logo">XOLVIRA</div>
+  <div class="loader-bar-wrap"><div class="loader-bar"></div></div>
+  <div class="loader-text">INITIALIZING PROTOCOL...</div>
+</div>
+
+<!-- ===================================================
+     TOAST
+==================================================== -->
+<div id="toast"></div>
+
+<!-- ===================================================
+     FLOATING COIN BADGE
+==================================================== -->
+<div id="coinBadge" onclick="scrollToSection('airdrop')">
+  <span class="coin-icon">🪙</span> Your Coins: <span id="badgeCount">0</span>
+</div>
+
+<!-- ===================================================
+     COIN UNLOCK BANNER
+==================================================== -->
+<div id="unlockBanner">
+  <div class="unlock-title">🎉 AIRDROP UNLOCKED!</div>
+  <p class="unlock-sub">You've collected 100+ XOLVIRA Coins. You are now eligible for the <strong>$5,000 AIRDROP</strong>! Stay active for the snapshot.</p>
+</div>
+
+<!-- ===================================================
+     HEADER
+==================================================== -->
+<header>
+  <a href="#home" class="logo-link">
+    <img src="image/logo.png" alt="XOLVIRA Logo" class="header-logo">
+  </a>
+
+  <nav id="mainNav">
+    <a href="#home">Home</a>
+    <a href="#game">Game</a>
+    <a href="#airdrop">Airdrop</a>
+    <a href="#wallet">Wallet</a>
+    <a href="#social">Social Tasks</a>
+  </nav>
+
+  <div style="display:flex;align-items:center;gap:12px;">
+    <button id="headerConnectBtn" onclick="connectMetaMask()">Connect Wallet</button>
+    <div class="hamburger" id="hamburger" onclick="toggleDrawer()">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</header>
+
+<!-- Mobile drawer -->
+<div class="nav-drawer" id="navDrawer">
+  <a href="#home" onclick="closeDrawer()">🏠 Home</a>
+  <a href="#game" onclick="closeDrawer()">🎮 Game</a>
+  <a href="#airdrop" onclick="closeDrawer()">🎁 Airdrop</a>
+  <a href="#wallet" onclick="closeDrawer()">👛 Wallet</a>
+  <a href="#social" onclick="closeDrawer()">📢 Social Tasks</a>
+</div>
+
+<!-- ===================================================
+     HERO
+==================================================== -->
+<section id="home">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="hero-content reveal">
+    <span class="hero-badge">🟢 LIVE &nbsp;|&nbsp; LIMITED ALLOCATION</span>
+    <h1 class="hero-title">🚀 <span class="highlight">$5,000 XOLVIRA</span><br>AIRDROP IS COMING</h1>
+    <span class="hero-amount">$5,000</span>
+    <p class="hero-sub">Play. Earn. Dominate the Future of Crypto Gaming.<br>Collect 100 coins to qualify for the biggest airdrop of 2026.</p>
+    <div class="hero-buttons">
+      <button class="btn btn-lg" onclick="scrollToSection('game')"><span>Play Game 🎮</span></button>
+      <button class="btn btn-purple btn-lg" onclick="connectMetaMask()"><span>Connect Wallet 💼</span></button>
+    </div>
+  </div>
+</section>
+
+<!-- ===================================================
+     AIRDROP INFO
+==================================================== -->
+<section id="airdrop">
+  <div class="neon-divider"></div>
+  <span class="section-label reveal">// AIRDROP PROTOCOL</span>
+  <h2 class="section-title reveal">🎁 Earn 100 Coins to Qualify for $5,000 Airdrop</h2>
+
+  <div class="airdrop-promo reveal">
+    <!-- Replaced text promo with image banner -->
+    <img src="image/$5000.png" alt="$5,000 Airdrop Promotional Banner">
+    <!-- <div class="promo-text">🏆 TOTAL POOL: $5,000 USDT · SNAPSHOT: TBA · CHAIN: ETH / SOLANA</div> -->
+  </div>
+
+  <!-- Progress bar linked to coins -->
+  <div class="progress-wrap reveal">
+    <div class="progress-label">
+      <span>YOUR PROGRESS</span>
+      <span><span id="progressVal">0</span>/100 COINS</span>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <div class="steps-grid stagger" id="stepsGrid">
+    <div class="step-card">
+      <div class="step-num">1</div>
+      <div class="step-title">Connect Wallet</div>
+      <p class="step-desc">Connect MetaMask or Phantom wallet to register your address on-chain.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">2</div>
+      <div class="step-title">Follow on X</div>
+      <p class="step-desc"><a href="https://x.com/AaarushSharmaaa" target="_blank" rel="noopener">@AaarushSharmaaa</a> — follow the official account.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">3</div>
+      <div class="step-title">Like + Retweet</div>
+      <p class="step-desc">Engage with the pinned airdrop post to boost your ranking.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">4</div>
+      <div class="step-title">Play & Collect Coins</div>
+      <p class="step-desc">Play the coin catcher game. Each coin = +1 XOLVIRA token.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">5</div>
+      <div class="step-title">Stay Active</div>
+      <p class="step-desc">Daily activity boosts your allocation. Snapshot = top wallets win.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================================================
+     GAME SECTION
+==================================================== -->
+<section id="game">
+  <div class="neon-divider"></div>
+  <span class="section-label reveal">// MINI GAME</span>
+  <h2 class="section-title reveal">🎮 Coin Catcher — Earn Real Coins</h2>
+  <p class="reveal" style="font-size:12px;color:rgba(200,216,232,0.6);margin-bottom:32px;">
+    Move your mouse (or finger on mobile) to catch falling coins. Every catch = +1 XOLVIRA coin stored in your wallet.
+  </p>
+
+  <div class="game-wrapper">
+    <div class="game-hud">
+      <div class="hud-box">SESSION SCORE<span class="hud-val" id="sessionScore">0</span></div>
+      <div class="hud-box">TOTAL COINS<span class="hud-val" id="totalCoinsDisplay">0</span></div>
+      <div class="hud-box">NEEDED<span class="hud-val" style="color:var(--neon-purple);">100</span></div>
+    </div>
+
+    <canvas id="gameCanvas" width="640" height="400"></canvas>
+    <div id="gameMsg">Press START to play!</div>
+
+    <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
+      <button class="btn btn-green btn-sm" id="startBtn" onclick="startGame()"><span>▶ START GAME</span></button>
+      <button class="btn btn-sm" id="resetBtn" onclick="restartGame()" style="display:none;"><span>↺ RESTART</span></button>
+    </div>
+  </div>
+</section>
+
+<!-- ===================================================
+     WALLET SECTION
+==================================================== -->
+<section id="wallet">
+  <div class="neon-divider"></div>
+  <span class="section-label reveal">// WALLET CONNECT</span>
+  <h2 class="section-title reveal">👛 Link Your Wallet — Secure Your Airdrop</h2>
+  <p class="reveal" style="font-size:12px;color:rgba(200,216,232,0.6);margin-bottom:36px;">
+    Connect MetaMask (Ethereum) or Phantom (Solana) to register your address for the airdrop snapshot.
+  </p>
+
+  <div class="wallet-grid stagger">
+
+    <!-- MetaMask -->
+    <div class="wallet-card card reveal">
+      <span class="wallet-icon">🦊</span>
+      <div class="wallet-name">MetaMask</div>
+      <p class="wallet-desc">Ethereum / EVM compatible. Most popular Web3 wallet.</p>
+      <button class="btn btn-sm" id="mmBtn" onclick="connectMetaMask()"><span>Connect MetaMask</span></button>
+      <div class="wallet-info hidden" id="mmInfo"></div>
+    </div>
+
+    <!-- Phantom -->
+    <div class="wallet-card card reveal">
+      <span class="wallet-icon">👻</span>
+      <div class="wallet-name">Phantom</div>
+      <p class="wallet-desc">Solana native. Lightning-fast, low fees. Best for SOL-based drops.</p>
+      <button class="btn btn-purple btn-sm" id="phBtn" onclick="connectPhantom()"><span>Connect Phantom</span></button>
+      <div class="wallet-info hidden" id="phInfo"></div>
+    </div>
+
+    <!-- Coin Balance -->
+    <div class="wallet-card card reveal">
+      <span class="wallet-icon">🪙</span>
+      <div class="wallet-name">Coin Balance</div>
+      <p class="wallet-desc">Your XOLVIRA coins earned in-game. 100 needed to qualify.</p>
+      <div style="font-family:var(--pixel);font-size:28px;color:var(--neon-yellow);text-shadow:0 0 16px var(--neon-yellow);margin:12px 0;" id="walletCoinBig">0</div>
+      <button class="btn btn-sm btn-green" onclick="resetCoins()"><span>🗑 Reset Coins</span></button>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===================================================
+     SOCIAL TASKS
+==================================================== -->
+<section id="social">
+  <div class="neon-divider"></div>
+  <span class="section-label reveal">// SOCIAL QUESTS</span>
+  <h2 class="section-title reveal">📢 Complete Tasks — Boost Your Allocation</h2>
+  <p class="reveal" style="font-size:12px;color:rgba(200,216,232,0.6);margin-bottom:36px;">
+    Each completed social task earns bonus coins and increases your airdrop weight.
+  </p>
+
+  <div class="tasks-grid stagger">
+
+    <div class="task-card" id="task-follow">
+      <span class="task-done">✅</span>
+      <div class="task-icon">🐦</div>
+      <div class="task-title">Follow on X</div>
+      <p class="task-desc">Follow <strong>@AaarushSharmaaa</strong> on X (Twitter) for live updates.</p>
+      <div class="task-reward">+5 COINS REWARD</div>
+      <a href="https://x.com/AaarushSharmaaa" target="_blank" rel="noopener">
+        <button class="btn btn-purple btn-sm" onclick="completeTask('follow',5)"><span>Follow Now 🐦</span></button>
+      </a>
+    </div>
+
+    <div class="task-card" id="task-retweet">
+      <span class="task-done">✅</span>
+      <div class="task-icon">🔁</div>
+      <div class="task-title">Retweet Pinned Post</div>
+      <p class="task-desc">Retweet the official XOLVIRA airdrop announcement.</p>
+      <div class="task-reward">+10 COINS REWARD</div>
+      <a href="https://x.com/AaarushSharmaaa" target="_blank" rel="noopener">
+        <button class="btn btn-sm" onclick="completeTask('retweet',10)"><span>Retweet 🔁</span></button>
+      </a>
+    </div>
+
+    <div class="task-card" id="task-like">
+      <span class="task-done">✅</span>
+      <div class="task-icon">❤️</div>
+      <div class="task-title">Like the Post</div>
+      <p class="task-desc">Like the pinned airdrop post on X to confirm support.</p>
+      <div class="task-reward">+5 COINS REWARD</div>
+      <a href="https://x.com/AaarushSharmaaa" target="_blank" rel="noopener">
+        <button class="btn btn-sm" onclick="completeTask('like',5)"><span>Like ❤️</span></button>
+      </a>
+    </div>
+
+    <div class="task-card" id="task-comment">
+      <span class="task-done">✅</span>
+      <div class="task-icon">💬</div>
+      <div class="task-title">Comment on Post</div>
+      <p class="task-desc">Drop a comment on the airdrop post with your wallet address.</p>
+      <div class="task-reward">+10 COINS REWARD</div>
+      <a href="https://x.com/AaarushSharmaaa" target="_blank" rel="noopener">
+        <button class="btn btn-sm" onclick="completeTask('comment',10)"><span>Comment 💬</span></button>
+      </a>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===================================================
+     FOOTER
+==================================================== -->
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div class="footer-logo">XOLVIRA</div>
+      <p class="footer-desc">The next-gen crypto gaming ecosystem. Play, earn, and dominate the blockchain frontier.</p>
+    </div>
+    <div>
+      <div class="footer-heading">NAVIGATE</div>
+      <ul class="footer-links">
+        <li><a href="#home">Home</a></li>
+        <li><a href="#game">Game</a></li>
+        <li><a href="#airdrop">Airdrop</a></li>
+        <li><a href="#wallet">Wallet</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-heading">COMMUNITY</div>
+      <ul class="footer-links">
+        <li><a href="https://x.com/AaarushSharmaaa" target="_blank">X (Twitter)</a></li>
+        <li><a href="#">Telegram</a></li>
+        <li><a href="#">Discord</a></li>
+        <li><a href="#">GitHub</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-heading">FOLLOW US</div>
+      <div class="social-row">
+        <a href="https://x.com/AaarushSharmaaa" target="_blank" class="social-btn" title="X/Twitter">𝕏</a>
+        <a href="#" class="social-btn" title="Telegram">✈</a>
+        <a href="#" class="social-btn" title="Discord">🎮</a>
+        <a href="#" class="social-btn" title="GitHub">⚙</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <span class="footer-copy">© 2026 XOLVIRA. ALL RIGHTS RESERVED.</span>
+    <span class="footer-copy" style="color:rgba(0,240,255,0.4);">POWERED BY BLOCKCHAIN</span>
+  </div>
+</footer>
+
+<!-- ===================================================
+     JAVASCRIPT — All logic below
+==================================================== -->
+<script>
+/* =====================================================
+   GLOBAL STATE
+===================================================== */
+let coins = parseInt(localStorage.getItem('xolvira_coins') || '0');
+let completedTasks = JSON.parse(localStorage.getItem('xolvira_tasks') || '{}');
+let connectedWallet = localStorage.getItem('xolvira_wallet') || null;
+let walletType     = localStorage.getItem('xolvira_wallet_type') || null;
+
+/* =====================================================
+   AUDIO — coin collect sound (Web Audio API, no file needed)
+===================================================== */
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let audioCtx = null;
+
+function initAudio() {
+  if (!audioCtx) audioCtx = new AudioCtx();
+}
+
+function playCoinSound() {
+  try {
+    if (!audioCtx) audioCtx = new AudioCtx();
+    const osc  = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.type = 'square';           // retro pixel sound
+    osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(1760, audioCtx.currentTime + 0.08);
+    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.12);
+    osc.start(audioCtx.currentTime);
+    osc.stop(audioCtx.currentTime + 0.12);
+  } catch(e) {}  // silently fail if browser blocks autoplay
+}
+
+/* =====================================================
+   TOAST NOTIFICATION
+===================================================== */
+function showToast(msg, color = '#00ff88') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.borderColor = color;
+  t.style.color       = color;
+  t.style.boxShadow   = `0 0 20px ${color}66`;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+/* =====================================================
+   COIN SYSTEM
+===================================================== */
+function saveCoins() { localStorage.setItem('xolvira_coins', coins); }
+
+function addCoins(n) {
+  coins += n;
+  saveCoins();
+  updateCoinUI();
+  checkUnlock();
+}
+
+function resetCoins() {
+  if (!confirm('Reset all coins to 0?')) return;
+  coins = 0;
+  saveCoins();
+  updateCoinUI();
+  document.getElementById('unlockBanner').style.display = 'none';
+  showToast('Coins reset to 0', '#ff4444');
+}
+
+function updateCoinUI() {
+  const c = coins;
+  document.getElementById('badgeCount').textContent        = c;
+  document.getElementById('totalCoinsDisplay').textContent = c;
+  document.getElementById('walletCoinBig').textContent     = c;
+  document.getElementById('progressVal').textContent       = Math.min(c, 100);
+
+  // Progress bar — capped at 100%
+  const pct = Math.min((c / 100) * 100, 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+function checkUnlock() {
+  const banner = document.getElementById('unlockBanner');
+  if (coins >= 100) {
+    banner.style.display = 'block';
+    // Place banner before airdrop section
+    const airdrop = document.getElementById('airdrop');
+    airdrop.parentNode.insertBefore(banner, airdrop);
+    showToast('🎉 AIRDROP UNLOCKED! 100 Coins reached!', '#ffee00');
+  }
+}
+
+/* =====================================================
+   SOCIAL TASKS
+===================================================== */
+function completeTask(taskId, reward) {
+  if (completedTasks[taskId]) {
+    showToast('Task already completed!', '#ffee00');
+    return;
+  }
+  completedTasks[taskId] = true;
+  localStorage.setItem('xolvira_tasks', JSON.stringify(completedTasks));
+  document.getElementById('task-' + taskId).classList.add('completed');
+  addCoins(reward);
+  showToast(`+${reward} Coins! Task completed ✅`, '#00ff88');
+}
+
+function loadTaskStates() {
+  Object.keys(completedTasks).forEach(id => {
+    const el = document.getElementById('task-' + id);
+    if (el) el.classList.add('completed');
+  });
+}
+
+/* =====================================================
+   SCROLL HELPER
+===================================================== */
+function scrollToSection(id) {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+}
+
+/* =====================================================
+   HAMBURGER MENU
+===================================================== */
+function toggleDrawer() { document.getElementById('navDrawer').classList.toggle('open'); }
+function closeDrawer()  { document.getElementById('navDrawer').classList.remove('open'); }
+
+/* =====================================================
+   METAMASK WALLET CONNECT
+   Logic: check window.ethereum → request accounts → store
+===================================================== */
+async function connectMetaMask() {
+  initAudio();
+  // Already connected?
+  if (connectedWallet && walletType === 'metamask') {
+    showToast('MetaMask already connected!', '#ffee00');
+    return;
+  }
+
+  if (typeof window.ethereum === 'undefined') {
+    showToast('MetaMask not found! Install it from metamask.io', '#ff4444');
+    window.open('https://metamask.io/', '_blank');
+    return;
+  }
+
+  try {
+    // Request account access — opens MetaMask popup
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    const address  = accounts[0];
+
+    connectedWallet = address;
+    walletType      = 'metamask';
+    localStorage.setItem('xolvira_wallet',      address);
+    localStorage.setItem('xolvira_wallet_type', 'metamask');
+
+    onWalletConnected(address, 'metamask');
+  } catch (err) {
+    // User rejected or error
+    if (err.code === 4001) {
+      showToast('Connection rejected by user.', '#ff4444');
+    } else {
+      showToast('MetaMask error: ' + (err.message || 'Unknown'), '#ff4444');
+    }
+  }
+}
+
+/* =====================================================
+   PHANTOM (SOLANA) WALLET CONNECT
+   Logic: check window.solana?.isPhantom → connect() → store
+===================================================== */
+async function connectPhantom() {
+  initAudio();
+  if (connectedWallet && walletType === 'phantom') {
+    showToast('Phantom already connected!', '#ffee00');
+    return;
+  }
+
+  const phantom = window.solana;
+  if (!phantom || !phantom.isPhantom) {
+    showToast('Phantom not found! Install it from phantom.app', '#ff4444');
+    window.open('https://phantom.app/', '_blank');
+    return;
+  }
+
+  try {
+    // Phantom's connect method — opens Phantom popup
+    const resp    = await phantom.connect();
+    const address = resp.publicKey.toString();
+
+    connectedWallet = address;
+    walletType      = 'phantom';
+    localStorage.setItem('xolvira_wallet',      address);
+    localStorage.setItem('xolvira_wallet_type', 'phantom');
+
+    onWalletConnected(address, 'phantom');
+  } catch (err) {
+    showToast('Phantom error: ' + (err.message || 'Unknown'), '#ff4444');
+  }
+}
+
+/* Called after either wallet connects successfully */
+function onWalletConnected(address, type) {
+  const short = address.slice(0, 6) + '...' + address.slice(-4);
+
+  // Update header button
+  const btn = document.getElementById('headerConnectBtn');
+  btn.textContent = '✅ ' + short;
+  btn.style.borderColor = '#00ff88';
+  btn.style.color       = '#00ff88';
+
+  // Update wallet section info boxes
+  if (type === 'metamask') {
+    const info = document.getElementById('mmInfo');
+    info.classList.remove('hidden');
+    info.innerHTML = `✅ CONNECTED<br>${address}<br><br>🔗 Network: Ethereum Mainnet`;
+    document.getElementById('mmBtn').textContent = '✅ Connected';
+  } else {
+    const info = document.getElementById('phInfo');
+    info.classList.remove('hidden');
+    info.innerHTML = `✅ CONNECTED<br>${address}<br><br>🔗 Network: Solana Mainnet`;
+    document.getElementById('phBtn').textContent = '✅ Connected';
+  }
+
+  // Give bonus coins for connecting
+  if (!completedTasks['wallet_connect']) {
+    completedTasks['wallet_connect'] = true;
+    localStorage.setItem('xolvira_tasks', JSON.stringify(completedTasks));
+    addCoins(5);
+    showToast(`Wallet connected! +5 bonus coins 🎉`, '#00ff88');
+  } else {
+    showToast(`Wallet reconnected: ${short}`, '#00ff88');
+  }
+}
+
+/* Restore wallet state from localStorage on load */
+function restoreWallet() {
+  if (!connectedWallet) return;
+  const short = connectedWallet.slice(0, 6) + '...' + connectedWallet.slice(-4);
+  const btn = document.getElementById('headerConnectBtn');
+  btn.textContent   = '✅ ' + short;
+  btn.style.color   = '#00ff88';
+  btn.style.borderColor = '#00ff88';
+
+  if (walletType === 'metamask') {
+    const info = document.getElementById('mmInfo');
+    info.classList.remove('hidden');
+    info.innerHTML = `✅ CONNECTED<br>${connectedWallet}<br><br>🔗 Network: Ethereum Mainnet`;
+    document.getElementById('mmBtn').textContent = '✅ Connected';
+  } else if (walletType === 'phantom') {
+    const info = document.getElementById('phInfo');
+    info.classList.remove('hidden');
+    info.innerHTML = `✅ CONNECTED<br>${connectedWallet}<br><br>🔗 Network: Solana Mainnet`;
+    document.getElementById('phBtn').textContent = '✅ Connected';
+  }
+}
+
+/* =====================================================
+   GAME ENGINE — Canvas Coin Catcher
+===================================================== */
+const canvas  = document.getElementById('gameCanvas');
+const ctx     = canvas.getContext('2d');
+const W       = canvas.width;
+const H       = canvas.height;
+
+let gameRunning   = false;
+let gameOver      = false;
+let sessionScore  = 0;
+let rafId         = null;
+
+/* Player paddle */
+const paddle = {
+  w: 80, h: 14,
+  x: W / 2 - 40,
+  y: H - 30,
+  speed: 0,
+};
+
+/* Coin pool */
+let gameCoins    = [];
+let coinSpawnTimer = 0;
+
+/* Missed coins */
+let missed = 0;
+const MAX_MISS = 5;
+
+/* Pixel stars (background decoration) */
+const stars = Array.from({ length: 60 }, () => ({
+  x: Math.random() * W,
+  y: Math.random() * H,
+  r: Math.random() * 1.5 + 0.5,
+  blink: Math.random() * Math.PI * 2,
+}));
+
+/* Mouse / touch tracking */
+let mouseX = W / 2;
+
+canvas.addEventListener('mousemove', e => {
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = W / rect.width;
+  mouseX = (e.clientX - rect.left) * scaleX;
+});
+
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = W / rect.width;
+  mouseX = (e.touches[0].clientX - rect.left) * scaleX;
+}, { passive: false });
+
+/* Spawn a coin */
+function spawnCoin() {
+  const types = [
+    { color: '#ffee00', shadow: '#ffee00', value: 1,  r: 12, label: '1' },
+    { color: '#00f0ff', shadow: '#00f0ff', value: 2,  r: 10, label: '2' },
+    { color: '#bf00ff', shadow: '#bf00ff', value: 3,  r: 8,  label: '3' },
+    { color: '#00ff88', shadow: '#00ff88', value: 5,  r: 7,  label: '5' },
+  ];
+  const t = types[Math.floor(Math.random() * types.length)];
+  gameCoins.push({
+    x: t.r + Math.random() * (W - t.r * 2),
+    y: -t.r,
+    r: t.r,
+    vy: 1.5 + Math.random() * 2.5 + sessionScore * 0.003,
+    ...t,
+    sparkles: [],
+    caught: false,
+  });
+}
+
+/* Draw pixel coin */
+function drawCoin(c) {
+  ctx.save();
+  ctx.shadowColor = c.shadow;
+  ctx.shadowBlur  = 14;
+  ctx.fillStyle   = c.color;
+
+  // Pixel circle
+  ctx.beginPath();
+  ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Inner shine
+  ctx.fillStyle = 'rgba(255,255,255,0.35)';
+  ctx.beginPath();
+  ctx.arc(c.x - c.r * 0.28, c.y - c.r * 0.28, c.r * 0.38, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Label
+  ctx.fillStyle = 'rgba(0,0,0,0.7)';
+  ctx.font      = `bold ${Math.max(7, c.r * 0.7)}px monospace`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.shadowBlur = 0;
+  ctx.fillText(c.label, c.x, c.y);
+
+  ctx.restore();
+}
+
+/* Draw paddle */
+function drawPaddle() {
+  const px = Math.max(0, Math.min(W - paddle.w, mouseX - paddle.w / 2));
+  paddle.x = px;
+
+  ctx.save();
+  ctx.shadowColor = '#00f0ff';
+  ctx.shadowBlur  = 18;
+
+  // Main body
+  ctx.fillStyle = '#00f0ff';
+  ctx.fillRect(px, paddle.y, paddle.w, paddle.h);
+
+  // Top highlight
+  ctx.fillStyle = 'rgba(255,255,255,0.4)';
+  ctx.fillRect(px + 2, paddle.y + 2, paddle.w - 4, 3);
+
+  // End squares (pixel detail)
+  ctx.fillStyle = '#bf00ff';
+  ctx.fillRect(px,                    paddle.y, 6, paddle.h);
+  ctx.fillRect(px + paddle.w - 6,     paddle.y, 6, paddle.h);
+
+  ctx.restore();
+}
+
+/* Draw starfield */
+function drawStars(t) {
+  stars.forEach(s => {
+    const alpha = 0.4 + 0.3 * Math.sin(s.blink + t * 0.001);
+    ctx.fillStyle = `rgba(200,220,255,${alpha})`;
+    ctx.fillRect(s.x - s.r, s.y - s.r, s.r * 2, s.r * 2);  // square stars = pixel style
+  });
+}
+
+/* Sparkle particles on catch */
+function spawnSparkles(x, y, color) {
+  return Array.from({ length: 8 }, () => ({
+    x, y,
+    vx: (Math.random() - 0.5) * 5,
+    vy: (Math.random() - 0.5) * 5,
+    life: 1,
+    color,
+  }));
+}
+
+let particles = [];
+
+function drawParticles() {
+  particles = particles.filter(p => p.life > 0);
+  particles.forEach(p => {
+    ctx.save();
+    ctx.globalAlpha = p.life;
+    ctx.fillStyle   = p.color;
+    ctx.shadowColor = p.color;
+    ctx.shadowBlur  = 6;
+    ctx.fillRect(p.x, p.y, 4, 4);
+    ctx.restore();
+    p.x    += p.vx;
+    p.y    += p.vy;
+    p.life -= 0.06;
+  });
+}
+
+/* Score pop-ups */
+let popups = [];
+
+function drawPopups() {
+  popups = popups.filter(p => p.life > 0);
+  popups.forEach(p => {
+    ctx.save();
+    ctx.globalAlpha = p.life;
+    ctx.fillStyle   = p.color;
+    ctx.shadowColor = p.color;
+    ctx.shadowBlur  = 10;
+    ctx.font        = `bold ${p.size}px "Press Start 2P", monospace`;
+    ctx.textAlign   = 'center';
+    ctx.fillText(p.text, p.x, p.y);
+    ctx.restore();
+    p.y    -= 1.2;
+    p.life -= 0.025;
+  });
+}
+
+/* HUD */
+function drawHUD() {
+  // Lives
+  ctx.save();
+  ctx.font        = '10px "Share Tech Mono", monospace';
+  ctx.fillStyle   = '#ff4444';
+  ctx.textAlign   = 'left';
+  ctx.fillText('MISS: ' + '■'.repeat(missed) + '□'.repeat(MAX_MISS - missed), 10, 22);
+
+  ctx.fillStyle = '#00f0ff';
+  ctx.textAlign = 'right';
+  ctx.fillText('SESSION: ' + sessionScore, W - 10, 22);
+  ctx.restore();
+}
+
+/* Main game loop */
+function gameLoop(t) {
+  if (!gameRunning) return;
+
+  // Clear
+  ctx.clearRect(0, 0, W, H);
+
+  // Background
+  ctx.fillStyle = 'rgba(10, 10, 26, 0.92)';
+  ctx.fillRect(0, 0, W, H);
+
+  // Grid lines
+  ctx.strokeStyle = 'rgba(0,240,255,0.04)';
+  ctx.lineWidth   = 1;
+  for (let gx = 0; gx < W; gx += 32) { ctx.beginPath(); ctx.moveTo(gx,0); ctx.lineTo(gx,H); ctx.stroke(); }
+  for (let gy = 0; gy < H; gy += 32) { ctx.beginPath(); ctx.moveTo(0,gy); ctx.lineTo(W,gy); ctx.stroke(); }
+
+  drawStars(t);
+  drawPaddle();
+
+  // Spawn coins
+  coinSpawnTimer++;
+  if (coinSpawnTimer > Math.max(25, 55 - sessionScore * 0.08)) {
+    spawnCoin();
+    coinSpawnTimer = 0;
+  }
+
+  // Update + draw coins
+  gameCoins = gameCoins.filter(c => c.y - c.r < H + 20);
+
+  gameCoins.forEach(c => {
+    c.y += c.vy;
+
+    // Collision check with paddle
+    if (
+      !c.caught &&
+      c.y + c.r >= paddle.y &&
+      c.y - c.r <= paddle.y + paddle.h &&
+      c.x >= paddle.x - c.r &&
+      c.x <= paddle.x + paddle.w + c.r
+    ) {
+      c.caught = true;
+      sessionScore += c.value;
+      addCoins(c.value);
+      playCoinSound();
+      particles.push(...spawnSparkles(c.x, c.y, c.color));
+      popups.push({ x: c.x, y: c.y - 10, text: '+' + c.value, color: c.color, life: 1, size: 11 });
+      document.getElementById('sessionScore').textContent = sessionScore;
+      return;
+    }
+
+    // Missed — fell through
+    if (!c.caught && c.y - c.r > H) {
+      missed++;
+      c.caught = true;
+      if (missed >= MAX_MISS) {
+        endGame();
+        return;
+      }
+    }
+
+    if (!c.caught) drawCoin(c);
+  });
+
+  drawParticles();
+  drawPopups();
+  drawHUD();
+
+  rafId = requestAnimationFrame(gameLoop);
+}
+
+function startGame() {
+  initAudio();
+  gameRunning   = true;
+  gameOver      = false;
+  sessionScore  = 0;
+  missed        = 0;
+  gameCoins     = [];
+  particles     = [];
+  popups        = [];
+  coinSpawnTimer = 0;
+
+  document.getElementById('sessionScore').textContent = 0;
+  document.getElementById('gameMsg').textContent      = 'Catch those coins! 🪙';
+  document.getElementById('startBtn').style.display   = 'none';
+  document.getElementById('resetBtn').style.display   = 'inline-block';
+
+  if (rafId) cancelAnimationFrame(rafId);
+  rafId = requestAnimationFrame(gameLoop);
+}
+
+function restartGame() {
+  if (rafId) cancelAnimationFrame(rafId);
+  startGame();
+}
+
+function endGame() {
+  gameRunning = false;
+  gameOver    = true;
+  if (rafId) cancelAnimationFrame(rafId);
+
+  // Draw game-over screen
+  ctx.fillStyle = 'rgba(10,10,26,0.88)';
+  ctx.fillRect(0, 0, W, H);
+  ctx.save();
+  ctx.textAlign   = 'center';
+  ctx.shadowColor = '#ff4444';
+  ctx.shadowBlur  = 20;
+  ctx.fillStyle   = '#ff4444';
+  ctx.font        = '18px "Press Start 2P", monospace';
+  ctx.fillText('GAME OVER', W / 2, H / 2 - 30);
+  ctx.shadowColor = '#00f0ff';
+  ctx.fillStyle   = '#00f0ff';
+  ctx.font        = '11px "Press Start 2P", monospace';
+  ctx.fillText('SESSION: ' + sessionScore + ' COINS', W / 2, H / 2 + 10);
+  ctx.fillStyle   = 'rgba(200,216,232,0.6)';
+  ctx.font        = '9px "Share Tech Mono", monospace';
+  ctx.fillText('Press RESTART to play again', W / 2, H / 2 + 45);
+  ctx.restore();
+
+  document.getElementById('gameMsg').textContent    = `Game Over! You scored ${sessionScore} coins this session.`;
+  document.getElementById('startBtn').style.display = 'inline-block';
+  document.getElementById('startBtn').querySelector('span').textContent = '▶ PLAY AGAIN';
+}
+
+/* Initial idle canvas */
+function drawIdleCanvas() {
+  ctx.fillStyle = 'rgba(10, 10, 26, 0.95)';
+  ctx.fillRect(0, 0, W, H);
+  ctx.save();
+  ctx.textAlign   = 'center';
+  ctx.shadowColor = '#00f0ff';
+  ctx.shadowBlur  = 20;
+  ctx.fillStyle   = '#00f0ff';
+  ctx.font        = '14px "Press Start 2P", monospace';
+  ctx.fillText('XOLVIRA', W / 2, H / 2 - 30);
+  ctx.fillStyle   = '#bf00ff';
+  ctx.shadowColor = '#bf00ff';
+  ctx.font        = '10px "Press Start 2P", monospace';
+  ctx.fillText('COIN CATCHER', W / 2, H / 2);
+  ctx.fillStyle   = 'rgba(200,216,232,0.5)';
+  ctx.shadowBlur  = 0;
+  ctx.font        = '9px "Share Tech Mono", monospace';
+  ctx.fillText('Press START to play', W / 2, H / 2 + 40);
+  ctx.restore();
+}
+
+/* =====================================================
+   SCROLL REVEAL OBSERVER
+===================================================== */
+function initReveal() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.reveal, .stagger').forEach(el => observer.observe(el));
+}
+
+/* =====================================================
+   LOADING SCREEN
+===================================================== */
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const loader = document.getElementById('loader');
+    loader.classList.add('hidden');
+    setTimeout(() => loader.remove(), 700);
+
+    // Init everything
+    updateCoinUI();
+    loadTaskStates();
+    restoreWallet();
+    initReveal();
+    drawIdleCanvas();
+    checkUnlock();  // show banner if already at 100
+
+  }, 2200);  // Let the loading animation play
+});
+
+</script>
+</body>
+</html>
